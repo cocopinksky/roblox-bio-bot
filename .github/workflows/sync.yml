@@ -1,4 +1,4 @@
-name: Sync Roblox Bio
+name: Sync Roblox Bio Test
 
 on:
   schedule:
