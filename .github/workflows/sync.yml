@@ -2,9 +2,10 @@ name: Sync Roblox Bio
 
 on:
   schedule:
-    # Runs every 10 minutes. GitHub may occasionally delay runs slightly
-    # during high load - that's normal and nothing to worry about.
-    - cron: '*/10 * * * *'
+    # Runs every 5 minutes - the fastest interval GitHub Actions allows.
+    # Actual runs may occasionally lag a few minutes behind during
+    # high load on GitHub's end - that's normal and out of our control.
+    - cron: '*/5 * * * *'
   workflow_dispatch: {}
     # ^ this lets you manually trigger a run from the GitHub website too,
     # useful for testing without waiting for the schedule.
@@ -14,10 +15,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: '22'
 
