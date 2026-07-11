@@ -31,6 +31,11 @@ const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
 const STATIC_HEADER =
   `Welcome to Coco's GRIND CLUB! Join our ONLINE SERVERS below! 💖☁️\n\n`;
 
+// Static text that always appears after the live server list.
+// Edit this to whatever closing text (rules, socials, credits, etc.) you want kept.
+const STATIC_FOOTER =
+  `\n\nThis is Cocopinksky's Official Roblox Group & Adopt Me Grind Servers!`;
+
 // ---- ROBLOX API HELPER ----
 class RobloxClient {
   constructor(cookie) {
@@ -105,9 +110,11 @@ function buildDescriptionText(servers) {
     body += 'No grind servers online right now — check back soon!';
   } else {
     body += onlineServers
-      .map((s) => `💚 #${s.server_number}: ${s.join_url}`)
+      .map((s) => `💚 ${s.server_number}: ${s.join_url}`)
       .join('\n');
   }
+
+  body += STATIC_FOOTER;
 
   if (body.length > DESCRIPTION_CHAR_LIMIT) {
     body = body.slice(0, DESCRIPTION_CHAR_LIMIT - 1) + '…';
