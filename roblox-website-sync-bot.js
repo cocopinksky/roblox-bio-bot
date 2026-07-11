@@ -29,7 +29,7 @@ const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
 // Static text that always appears above the live server list.
 // Edit this to whatever intro/rules copy your group description should keep.
 const STATIC_HEADER =
-  `Welcome to the community! Check below for currently active grind servers.\n\n`;
+  `Welcome to Coco's GRIND CLUB! Join our online servers below! 💖 \n\n`;
 
 // ---- ROBLOX API HELPER ----
 class RobloxClient {
