@@ -1,0 +1,32 @@
+name: Sync Roblox Bio
+
+on:
+  schedule:
+    # Runs every 5 minutes. GitHub may occasionally delay runs slightly
+    # during high load - that's normal and nothing to worry about.
+    - cron: '*/10 * * * *'
+  workflow_dispatch: {}
+    # ^ this lets you manually trigger a run from the GitHub website too,
+    # useful for testing without waiting for the schedule.
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run sync script
+        env:
+          ROBLOX_COOKIE: ${{ secrets.ROBLOX_COOKIE }}
+          ROBLOX_GROUP_ID: ${{ secrets.ROBLOX_GROUP_ID }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: node roblox-website-sync-bot.js
