@@ -29,7 +29,7 @@ const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
 // Static text that always appears above the live server list.
 // Edit this to whatever intro/rules copy your group description should keep.
 const STATIC_HEADER =
-  `Welcome to Coco's GRIND CLUB! Join our online servers below! 💖 \n\n`;
+  `Welcome to Coco's GRIND CLUB! Join our ONLINE SERVERS below! 💖☁️\n\n`;
 
 // ---- ROBLOX API HELPER ----
 class RobloxClient {
@@ -105,10 +105,7 @@ function buildDescriptionText(servers) {
     body += 'No grind servers online right now — check back soon!';
   } else {
     body += onlineServers
-      .map((s) => {
-        const label = s.host_name || `Server #${s.server_number}`;
-        return `• ${label}: ${s.join_url}`;
-      })
+      .map((s) => `💚 #${s.server_number}: ${s.join_url}`)
       .join('\n');
   }
 
