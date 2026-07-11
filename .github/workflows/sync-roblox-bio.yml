@@ -5,7 +5,7 @@ on:
     # Runs every 5 minutes - the fastest interval GitHub Actions allows.
     # Actual runs may occasionally lag a few minutes behind during
     # high load on GitHub's end - that's normal and out of our control.
-    - cron: '* * * * *'
+    - cron: '*/5* * * *'
   workflow_dispatch: {}
     # ^ this lets you manually trigger a run from the GitHub website too,
     # useful for testing without waiting for the schedule.
