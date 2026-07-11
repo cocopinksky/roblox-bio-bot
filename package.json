@@ -1,0 +1,13 @@
+{
+  "name": "roblox-bio-bot",
+  "version": "1.0.0",
+  "description": "Syncs cocogrindclub.com server status into a Roblox group's bio",
+  "main": "roblox-website-sync-bot.js",
+  "scripts": {
+    "start": "node roblox-website-sync-bot.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "node-fetch": "^2.7.0"
+  }
+}
