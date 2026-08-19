@@ -2,7 +2,9 @@
  * cocogrindclub.com -> Roblox Group Description ("bio"/About section) sync bot
  *
  * Polls the site's live server-status data on a timer and rewrites your
- * Roblox group's Description with the currently online servers + join links.
+ * Roblox group's Description with a summary + link to your site (since
+ * Roblox currently moderates/blocks roblox.com share links posted directly
+ * in group descriptions).
  *
  * SETUP:
  *   1. npm init -y
@@ -26,13 +28,11 @@ const SUPABASE_URL =
   '&order=server_number.asc';
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
 
-// Static text that always appears above the live server list.
-// Edit this to whatever intro/rules copy your group description should keep.
+// Static text that always appears above the live server summary.
 const STATIC_HEADER =
-  `Welcome to Coco's GRIND CLUB! Join our ONLINE SERVERS below! 💖☁️\n\n`;
+  `Welcome to Coco's GRIND CLUB! 💖☁️\n\n`;
 
-// Static text that always appears after the live server list.
-// Edit this to whatever closing text (rules, socials, credits, etc.) you want kept.
+// Static text that always appears after the live server summary.
 const STATIC_FOOTER =
   `\n\nThis is Cocopinksky's Official Roblox Group & Adopt Me Grind Servers!`;
 
@@ -96,9 +96,6 @@ async function fetchServers() {
 
 // ---- BUILD THE DESCRIPTION TEXT ----
 function isOnline(server) {
-  // Adjust this if the site's actual "online" value looks different -
-  // e.g. it might be "Online", "active", true, etc. Log a sample row
-  // (see the console.log below on first run) to check the real value.
   return typeof server.status === 'string' && server.status.toLowerCase() === 'online';
 }
 
@@ -109,9 +106,8 @@ function buildDescriptionText(servers) {
   if (onlineServers.length === 0) {
     body += 'No grind servers online right now — check back soon!';
   } else {
-    body += onlineServers
-      .map((s) => `💚 ${s.server_number}: ${s.join_url}`)
-      .join('\n');
+    body += `${onlineServers.length} server${onlineServers.length === 1 ? '' : 's'} online right now!\n`;
+    body += `👉 Tap the website link on our group page to join!`;
   }
 
   body += STATIC_FOOTER;
