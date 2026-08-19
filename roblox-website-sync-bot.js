@@ -2,7 +2,8 @@
  * cocogrindclub.com -> Roblox Group Description ("bio"/About section) sync bot
  *
  * Polls the site's live server-status data on a timer and rewrites your
- * Roblox group's Description with the currently online servers + join links.
+ * Roblox group's Description with the currently online servers + join links,
+ * sorted from least players to most/full.
  *
  * SETUP:
  *   1. npm init -y
@@ -22,17 +23,15 @@ const DESCRIPTION_CHAR_LIMIT = 1000;
 const SUPABASE_URL =
   'https://fnromsiufecdxgaukuzh.supabase.co/rest/v1/roblox_servers' +
   '?select=id,server_number,host_name,host_name_2,status,secondary_status,' +
-  'grind_goal,join_url,updated_at,notes,max_players' +
+  'grind_goal,join_url,updated_at,notes,max_players,current_players' +
   '&order=server_number.asc';
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
 
 // Static text that always appears above the live server list.
-// Edit this to whatever intro/rules copy your group description should keep.
 const STATIC_HEADER =
   `Welcome to Coco's GRIND CLUB! Happy grinding! 💖☁️\n\n`;
 
 // Static text that always appears after the live server list.
-// Edit this to whatever closing text (rules, socials, credits, etc.) you want kept.
 const STATIC_FOOTER =
   `\n\nThis is Cocopinksky's Official Group & Adopt Me Grind Servers!`;
 
@@ -102,15 +101,32 @@ function isOnline(server) {
   return typeof server.status === 'string' && server.status.toLowerCase() === 'online';
 }
 
+// Missing/invalid current_players sorts to the end (treated as "unknown"),
+// so servers with a real, lower live count show up first.
+function playerCount(server) {
+  const n = Number(server.current_players);
+  return Number.isFinite(n) ? n : Infinity;
+}
+
 function buildDescriptionText(servers) {
-  const onlineServers = servers.filter(isOnline);
+  const onlineServers = servers
+    .filter(isOnline)
+    .slice() // don't mutate the original array
+    .sort((a, b) => playerCount(a) - playerCount(b)); // least players -> most/full
+
   let body = STATIC_HEADER;
 
   if (onlineServers.length === 0) {
     body += 'No grind servers online right now — check back soon!';
   } else {
     body += onlineServers
-      .map((s) => `💚 ${s.server_number}: ${s.join_url}`)
+      .map((s) => {
+        const countLabel =
+          Number.isFinite(playerCount(s)) && s.max_players
+            ? ` (${s.current_players}/${s.max_players})`
+            : '';
+        return `💚 ${s.server_number}${countLabel}: ${s.join_url}`;
+      })
       .join('\n');
   }
 
