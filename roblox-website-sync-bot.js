@@ -120,13 +120,7 @@ function buildDescriptionText(servers) {
     body += 'No grind servers online right now — check back soon!';
   } else {
     body += onlineServers
-      .map((s) => {
-        const countLabel =
-          Number.isFinite(playerCount(s)) && s.max_players
-            ? ` (${s.current_players}/${s.max_players})`
-            : '';
-        return `💚 ${s.server_number}${countLabel}: ${s.join_url}`;
-      })
+      .map((s) => `💚 ${s.server_number}: ${s.join_url}`)
       .join('\n');
   }
 
