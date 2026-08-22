@@ -46,4 +46,118 @@ class RobloxClient {
     const headers = {
       'Content-Type': 'application/json',
       Cookie: `.ROBLOSECURITY=${this.cookie}`,
-      ...(this.csrfToken ? { 'x-csrf-token':
+      ...(this.csrfToken ? { 'x-csrf-token': this.csrfToken } : {}),
+      ...options.headers,
+    };
+
+    const res = await fetch(url, { ...options, headers });
+
+    // Roblox replies 403 the first time and hands back the CSRF token to use.
+    if (res.status === 403 && res.headers.get('x-csrf-token')) {
+      this.csrfToken = res.headers.get('x-csrf-token');
+      return this.request(url, options); // retry once with the token
+    }
+
+    if (!res.ok) {
+      const body = await res.text().catch(() => '');
+      throw new Error(`Roblox API error ${res.status}: ${body}`);
+    }
+
+    return res.status === 204 ? null : res.json().catch(() => null);
+  }
+
+  async updateDescription(groupId, description) {
+    return this.request(`https://groups.roblox.com/v1/groups/${groupId}/description`, {
+      method: 'PATCH',
+      body: JSON.stringify({ description }),
+    });
+  }
+}
+
+const roblox = new RobloxClient(ROBLOX_COOKIE);
+
+// ---- FETCH SERVER DATA FROM THE WEBSITE ----
+async function fetchServers() {
+  const res = await fetch(SUPABASE_URL, {
+    headers: {
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+    },
+  });
+
+  if (!res.ok) {
+    const body = await res.text().catch(() => '');
+    throw new Error(`Failed to fetch server data: ${res.status} ${body}`);
+  }
+
+  return res.json();
+}
+
+// ---- BUILD THE DESCRIPTION TEXT ----
+function isOnline(server) {
+  return typeof server.status === 'string' && server.status.toLowerCase() === 'online';
+}
+
+// Missing/invalid current_players sorts to the end (treated as "unknown"),
+// so servers with a real, lower live count show up first.
+function playerCount(server) {
+  const n = Number(server.current_players);
+  return Number.isFinite(n) ? n : Infinity;
+}
+
+function buildDescriptionText(servers) {
+  const onlineServers = servers
+    .filter(isOnline)
+    .slice() // don't mutate the original array
+    .sort((a, b) => playerCount(a) - playerCount(b)); // least players -> most/full
+
+  let body = STATIC_HEADER;
+
+  if (onlineServers.length === 0) {
+    body += 'No grind servers online right now — check back soon!';
+  } else {
+    body += onlineServers
+      .map((s) => {
+        const countLabel =
+          Number.isFinite(playerCount(s)) && s.max_players
+            ? ` (${s.current_players}/${s.max_players})`
+            : '';
+        return `💚${s.server_number}${countLabel}: ${s.join_url}`;
+      })
+      .join('\n');
+  }
+
+  body += STATIC_FOOTER;
+
+  if (body.length > DESCRIPTION_CHAR_LIMIT) {
+    body = body.slice(0, DESCRIPTION_CHAR_LIMIT - 1) + '…';
+  }
+  return body;
+}
+
+// ---- MAIN ----
+async function syncOnce() {
+  try {
+    const servers = await fetchServers();
+
+    console.log('Sample server row (check the "status" field value here):');
+    if (servers.length > 0) console.log(JSON.stringify(servers[0], null, 2));
+
+    const descriptionText = buildDescriptionText(servers);
+    await roblox.updateDescription(ROBLOX_GROUP_ID, descriptionText);
+
+    console.log(`[${new Date().toLocaleTimeString()}] Description updated:\n${descriptionText}\n`);
+  } catch (err) {
+    console.error(`[${new Date().toLocaleTimeString()}] Sync failed:`, err.message);
+    process.exit(1); // non-zero exit so GitHub Actions marks the run as failed
+  }
+}
+
+syncOnce();
+
+/*
+--- .env example ---
+ROBLOX_COOKIE=your-bot-accounts-.ROBLOSECURITY-value
+ROBLOX_GROUP_ID=987654321
+SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+*/
