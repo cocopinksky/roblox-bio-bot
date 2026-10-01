@@ -125,7 +125,7 @@ function buildDescriptionText(servers) {
     body += `👉 Best server to join: 💚${best.server_number}\n${best.join_url}`;
 
     if (rest.length > 0) {
-      body += `\n\nAlso online: ${rest.map((s) => `#${s.server_number}`).join(', ')}`;
+      body += `\n\nAlso open: ${rest.map((s) => `#${s.server_number}`).join(', ')}`;
     }
   }
 
