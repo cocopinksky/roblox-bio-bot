@@ -118,17 +118,14 @@ function buildDescriptionText(servers) {
   if (onlineServers.length === 0) {
     body += 'No grind servers online right now — check back soon!';
   } else {
-    const [best, ...rest] = onlineServers;
+    const [best] = onlineServers;
 
-    // Only ONE link in the whole description - Roblox's filter rejects the
-    // text when multiple roblox.com links appear together.
+    // Only ONE link/server reference in the whole description - Roblox's
+    // API filter rejects the text when multiple servers/links are listed
+    // together (confirmed: a single-server message passes, a message that
+    // also lists the other online server numbers gets rejected every time,
+    // even with no links and no "#" symbols attached to those numbers).
     body += `👉 Best server to join: 💚${best.server_number}\n${best.join_url}`;
-
-    // TEMPORARILY DISABLED while we isolate the filter issue - this matches
-    // exactly what was confirmed to work via manual edit in the Roblox UI.
-    // if (rest.length > 0) {
-    //   body += `\n\nAlso open: ${rest.map((s) => s.server_number).join(', ')}`;
-    // }
   }
 
   body += STATIC_FOOTER;
