@@ -29,11 +29,15 @@ const SUPABASE_URL =
   '&order=server_number.asc';
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
 
-// Static text that always appears above the live server list.
-const STATIC_HEADER =
-  `Welcome to Coco's GRIND CLUB! Happy grinding! 💖☁️\n\n`;
+// Static text that appears above the greeting (right before the "best
+// server" line, when there's at least one server online).
+const STATIC_HEADER = '';
 
-// Static text that always appears after the live server list.
+// Static text that always appears below the "best server to join" line.
+const STATIC_GREETING =
+  `\n\nWelcome to Coco's GRIND CLUB! Happy grinding! 💖☁️`;
+
+// Static text that always appears after everything else.
 const STATIC_FOOTER =
   `\n\nThis is Cocopinksky's Official Group & Adopt Me Grind Servers!`;
 
