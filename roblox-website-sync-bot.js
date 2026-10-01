@@ -2,8 +2,10 @@
  * cocogrindclub.com -> Roblox Group Description ("bio"/About section) sync bot
  *
  * Polls the site's live server-status data on a timer and rewrites your
- * Roblox group's Description with the currently online servers + join links,
- * sorted from least players to most/full.
+ * Roblox group's Description. Roblox's description filter rejects the text
+ * when multiple roblox.com join links appear together, so this version only
+ * includes ONE clickable link (the server with the fewest players) and lists
+ * the rest of the online servers by number only, with no links.
  *
  * SETUP:
  *   1. npm init -y
@@ -108,7 +110,7 @@ function playerCount(server) {
 function buildDescriptionText(servers) {
   const onlineServers = servers
     .filter(isOnline)
-    .slice() // don't mutate the original array
+    .slice()
     .sort((a, b) => playerCount(a) - playerCount(b)); // least players -> most/full
 
   let body = STATIC_HEADER;
@@ -116,15 +118,15 @@ function buildDescriptionText(servers) {
   if (onlineServers.length === 0) {
     body += 'No grind servers online right now — check back soon!';
   } else {
-    body += onlineServers
-      .map((s) => {
-        const countLabel =
-          Number.isFinite(playerCount(s)) && s.max_players
-            ? ` (${s.current_players}/${s.max_players})`
-            : '';
-        return `💚${s.server_number}${countLabel}: ${s.join_url}`;
-      })
-      .join('\n');
+    const [best, ...rest] = onlineServers;
+
+    // Only ONE link in the whole description - Roblox's filter rejects the
+    // text when multiple roblox.com links appear together.
+    body += `👉 Best server to join: 💚${best.server_number}\n${best.join_url}`;
+
+    if (rest.length > 0) {
+      body += `\n\nAlso online: ${rest.map((s) => `#${s.server_number}`).join(', ')}`;
+    }
   }
 
   body += STATIC_FOOTER;
