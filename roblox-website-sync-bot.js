@@ -124,9 +124,11 @@ function buildDescriptionText(servers) {
     // text when multiple roblox.com links appear together.
     body += `👉 Best server to join: 💚${best.server_number}\n${best.join_url}`;
 
-    if (rest.length > 0) {
-      body += `\n\nAlso open: ${rest.map((s) => s.server_number).join(', ')}`;
-    }
+    // TEMPORARILY DISABLED while we isolate the filter issue - this matches
+    // exactly what was confirmed to work via manual edit in the Roblox UI.
+    // if (rest.length > 0) {
+    //   body += `\n\nAlso open: ${rest.map((s) => s.server_number).join(', ')}`;
+    // }
   }
 
   body += STATIC_FOOTER;
@@ -146,6 +148,16 @@ async function syncOnce() {
     if (servers.length > 0) console.log(JSON.stringify(servers[0], null, 2));
 
     const descriptionText = buildDescriptionText(servers);
+
+    // Log the EXACT text being submitted, every time, so a failure still
+    // shows us precisely what was sent (character for character) instead
+    // of leaving us guessing.
+    console.log('Submitting this description text to Roblox:');
+    console.log('--- START ---');
+    console.log(descriptionText);
+    console.log('--- END ---');
+    console.log(`Length: ${descriptionText.length} chars`);
+
     await roblox.updateDescription(ROBLOX_GROUP_ID, descriptionText);
 
     console.log(`[${new Date().toLocaleTimeString()}] Description updated:\n${descriptionText}\n`);
