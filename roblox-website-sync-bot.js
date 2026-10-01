@@ -131,7 +131,8 @@ function buildDescriptionText(servers) {
     // even with no links and no "#" symbols attached to those numbers).
     body += `👉 Best server to join: 💚${best.server_number}\n${best.join_url}`;
   }
-
+  
+  body += STATIC_GREETING;
   body += STATIC_FOOTER;
 
   if (body.length > DESCRIPTION_CHAR_LIMIT) {
