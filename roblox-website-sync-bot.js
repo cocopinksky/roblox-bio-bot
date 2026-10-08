@@ -134,7 +134,11 @@ function buildDescriptionText(servers) {
   const lines = [];
   let used = 0;
   for (const s of onlineServers) {
-    const line = `💚${s.server_number}: ${s.join_url}`;
+    const countLabel =
+      Number.isFinite(playerCount(s)) && s.max_players
+        ? ` (${s.current_players}/${s.max_players})`
+        : '';
+    const line = `💚${s.server_number}${countLabel}: ${s.join_url}`;
     const addedLen = line.length + 1; // +1 for the newline joining it
     if (used + addedLen > budget) break; // stop adding, don't cut mid-line
     lines.push(line);
