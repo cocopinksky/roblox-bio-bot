@@ -29,9 +29,9 @@ const SUPABASE_URL =
   '&order=server_number.asc';
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
 
-// Static text that appears above the greeting (right before the "best
-// server" line, when there's at least one server online).
-const STATIC_HEADER = '';
+// Static text that appears above the server list (when at least one
+// server is online).
+const STATIC_HEADER = 'Join online servers 👇🏼\n';
 
 // Static text that always appears below the "best server to join" line.
 const STATIC_GREETING =
@@ -117,21 +117,31 @@ function buildDescriptionText(servers) {
     .slice()
     .sort((a, b) => playerCount(a) - playerCount(b)); // least players -> most/full
 
-  let body = STATIC_HEADER;
-
   if (onlineServers.length === 0) {
-    body += 'No grind servers online right now — check back soon!';
-  } else {
-    const [best] = onlineServers;
-
-    // Only ONE link/server reference in the whole description - Roblox's
-    // API filter rejects the text when multiple servers/links are listed
-    // together (confirmed: a single-server message passes, a message that
-    // also lists the other online server numbers gets rejected every time,
-    // even with no links and no "#" symbols attached to those numbers).
-    body += `👉 Best server to join: 💚${best.server_number}\n${best.join_url}`;
+    let body = 'No grind servers online right now — check back soon!';
+    body += STATIC_GREETING;
+    body += STATIC_FOOTER;
+    return body;
   }
-  
+
+  // Build the server list one line at a time and stop BEFORE exceeding the
+  // character budget, so we never cut a link off mid-URL. Budget is the
+  // total limit minus the header, greeting, footer, and a small safety
+  // margin for the "…" truncation marker if ever needed.
+  const reservedLen = STATIC_HEADER.length + STATIC_GREETING.length + STATIC_FOOTER.length + 1;
+  const budget = DESCRIPTION_CHAR_LIMIT - reservedLen;
+
+  const lines = [];
+  let used = 0;
+  for (const s of onlineServers) {
+    const line = `💚${s.server_number}: ${s.join_url}`;
+    const addedLen = line.length + 1; // +1 for the newline joining it
+    if (used + addedLen > budget) break; // stop adding, don't cut mid-line
+    lines.push(line);
+    used += addedLen;
+  }
+
+  let body = STATIC_HEADER + lines.join('\n');
   body += STATIC_GREETING;
   body += STATIC_FOOTER;
 
