@@ -5,7 +5,7 @@ on:
     # ^ this lets the workflow be triggered on-demand - either by you
     # manually via the GitHub website, or by the schedule below.
   schedule:
-    - cron: '*/5 * * * *'
+    - cron: '2-59/5 * * * *'
     # ^ runs automatically every 5 minutes
 
 jobs:
