@@ -3,7 +3,10 @@ name: Sync Roblox Bio
 on:
   workflow_dispatch: {}
     # ^ this lets the workflow be triggered on-demand - either by you
-    # manually via the GitHub website, or by our external scheduler.
+    # manually via the GitHub website, or by the schedule below.
+  schedule:
+    - cron: '*/5 * * * *'
+    # ^ runs automatically every 5 minutes
 
 jobs:
   sync:
